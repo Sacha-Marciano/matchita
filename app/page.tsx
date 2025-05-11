@@ -45,6 +45,7 @@ export default function Home() {
             Read our docs
           </a>
         </div>
+        <p className={styles.primary}> {process.env.MONGODB_URI} Sacha </p>
       </main>
       <footer className={styles.footer}>
         <a
