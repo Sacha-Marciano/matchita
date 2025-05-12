@@ -5,15 +5,14 @@ import Room from "@/app/database/models/Room";
 // Here we get the room by id to display all the document in it
 // The uploading of document is handled in /api/upload
 
-export async function GET(
+export async function POST(
   req: NextRequest,
-  context: { params: { id: string } }
 ) {
-  const { params } = context;
+  const { id } = await req.json();;
 
   try {
     await connectDb();
-    const room = await Room.findById(params.id);
+    const room = await Room.findById(id);
     if (!room)
       return NextResponse.json({ error: "Room not found" }, { status: 404 });
 
@@ -26,5 +25,3 @@ export async function GET(
     );
   }
 }
-
-

@@ -25,21 +25,24 @@ export async function createRoom(data: {
   folders?: string[];
   tags?: string[];
   documents?: IDocument[];
-  createdAt :Date;
+  createdAt: Date;
 }): Promise<IRoom> {
   await connectDb();
   const newRoom = new Room({
     ...data,
     folders: data.folders ?? [],
     tags: data.tags ?? [],
-    documents:[],
+    documents: [],
     createdAt: data.createdAt,
   });
   return newRoom.save();
 }
 
 // Add document to a room by its ID
-export async function addDocumentToRoom(roomId: string, doc: IDocument): Promise<IRoom | null> {
+export async function addDocumentToRoom(
+  roomId: string,
+  doc: IDocument
+): Promise<IRoom | null> {
   await connectDb();
 
   if (!Types.ObjectId.isValid(roomId)) throw new Error("Invalid room ID");
@@ -54,13 +57,21 @@ export async function addDocumentToRoom(roomId: string, doc: IDocument): Promise
 }
 
 // update room tags and folders. data needs to be {folders: ["new folder"], tags: ["new tag1", "new tag2"]}
-export async function updateRoomById(roomId: string, data: Partial<IRoom>): Promise<IRoom | null> {
+export async function updateRoomById(
+  roomId: string,
+  data: Partial<IRoom>
+): Promise<IRoom | null> {
   await connectDb();
   if (!Types.ObjectId.isValid(roomId)) {
     throw new Error("Invalid room ID");
   }
-  const updatePayload: any = {};
-
+  const updatePayload: {
+    $addToSet?: {
+      folders?: { $each: string[] };
+      tags?: { $each: string[] };
+    };
+  } = {};
+  
   // Iterate over folders and tags, add only if non existing
   if (data.folders?.length) {
     updatePayload["$addToSet"] = updatePayload["$addToSet"] || {};
@@ -72,11 +83,9 @@ export async function updateRoomById(roomId: string, data: Partial<IRoom>): Prom
     updatePayload["$addToSet"].tags = { $each: data.tags };
   }
 
-  const updatedRoom = await Room.findByIdAndUpdate(
-    roomId,
-    updatePayload,
-    { new: true }
-  );
+  const updatedRoom = await Room.findByIdAndUpdate(roomId, updatePayload, {
+    new: true,
+  });
 
   return updatedRoom;
 }

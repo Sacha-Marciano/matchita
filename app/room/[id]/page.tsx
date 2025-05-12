@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import DocModal from "@/app/components/DocModal";
+import { IRoom } from "@/app/database/models/Room";
 
 interface Document {
   _id?: string;
@@ -14,7 +15,7 @@ interface Document {
 
 export default function RoomPage() {
   const { id } = useParams();
-  const [room, setRoom] = useState<any>(null);
+  const [room, setRoom] = useState<IRoom>();
   const [isDocModalOpen, setIsDocModalOpen] = useState<boolean>(false);
   const [docToDisplay, setDocToDisplay] = useState<Document[]>([]);
 
@@ -42,7 +43,13 @@ export default function RoomPage() {
 
   useEffect(() => {
     const fetchRoom = async () => {
-      const res = await fetch(`/api/room/${id}`);
+      const res = await fetch(`/api/room/${id}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id }),
+      });
       const data = await res.json();
       setRoom(data.data);
       setDocToDisplay(data.data.documents);
