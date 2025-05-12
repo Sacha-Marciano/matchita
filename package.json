@@ -9,7 +9,9 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@aws-sdk/client-bedrock-runtime": "^3.806.0",
     "@tailwindcss/postcss": "^4.1.6",
+    "aws-sdk": "^2.1692.0",
     "mongoose": "^8.14.2",
     "next": "15.3.2",
     "postcss": "^8.5.3",

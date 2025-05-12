@@ -1,23 +1,26 @@
-import mongoose from "mongoose";
+import mongoose, { ConnectOptions } from "mongoose";
 
-const connectDb = async () => {
+const connectDb = async (): Promise<void> => {
   if (mongoose.connections[0].readyState) {
     // Already connected
     return;
   }
 
-  // Use your MongoDB URI from environment variables
   const mongoUri = process.env.MONGO_URL;
+
+  if (!mongoUri) {
+    throw new Error("MONGO_URL environment variable is not defined");
+  }
 
   try {
     await mongoose.connect(mongoUri, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
-    });
+    } as ConnectOptions);
     console.log("MongoDB connected");
   } catch (error) {
     console.error("MongoDB connection failed:", error);
-    process.exit(1); // Exit if MongoDB connection fails
+    process.exit(1);
   }
 };
 

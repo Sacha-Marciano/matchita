@@ -1,0 +1,105 @@
+@import "tailwindcss";
+
+button {
+  @apply py-2 px-4 bg-primary border border-secondary hover:bg-hover text-matchita-text hover:text-matchita-text-alt shadow-2xl rounded-xl;
+}
+
+@theme {
+  /* Breakpoints */
+  --breakpoint-xs: 475px;
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 668px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
+
+  /* Main Theme Colors */
+  --color-matchita-50: #faf5ff;
+  --color-matchita-100: #f3e8ff;
+  --color-matchita-200: #e9d5ff;
+  --color-matchita-300: #d8b4fe;
+  --color-matchita-400: #c084fc;
+  --color-matchita-500: #a855f7;
+  --color-matchita-600: #9333ea;
+  --color-matchita-700: #7e22ce;
+  --color-matchita-800: #6b21a8;
+  --color-matchita-900: #581c87;
+
+  /* Accent Colors */
+  --color-accent: #38bdf8; /* Light sky blue */
+  --color-accent-alt: #facc15; /* Vibrant yellow */
+
+  /* Backgrounds */
+  --color-bg: #fdf4ff; /* very soft lavender */
+  --color-bg-alt: #f3e8ff;
+
+  /* Hover */
+  --color-hover: var(--color-matchita-300);
+
+  /* Texts */
+  --color-matchita-text: #fdf4ff;
+  --color-matchita-text-alt: #7e22ce;
+  --color-matchita-text-invert: #1e1b4b;
+
+  /* Core Theme Tokens */
+  --color-primary: var(--color-matchita-600);
+  --color-primary-light: var(--color-matchita-400);
+  --color-primary-dark: var(--color-matchita-800);
+
+  --color-secondary: #1e1b4b; /* deep indigo gray */
+  --color-secondary-light: #3f3cbb;
+  --color-secondary-dark: #1e1b4b;
+
+  /* Font Sizes */
+  --font-size-xs: 0.75rem;
+  --font-size-xs-line-height: 1rem;
+
+  --font-size-sm: 0.875rem;
+  --font-size-sm-line-height: 1.25rem;
+
+  --font-size-base: 1rem;
+  --font-size-base-line-height: 1.5rem;
+
+  --font-size-lg: 1.125rem;
+  --font-size-lg-line-height: 1.75rem;
+
+  --font-size-xl: 1.25rem;
+  --font-size-xl-line-height: 1.75rem;
+
+  --font-size-2xl: 1.5rem;
+  --font-size-2xl-line-height: 2rem;
+
+  --font-size-3xl: 1.875rem;
+  --font-size-3xl-line-height: 2.25rem;
+
+  --font-size-4xl: 2.25rem;
+  --font-size-4xl-line-height: 2.5rem;
+  --font-size-4xl-font-weight: 700;
+
+  --font-size-5xl: 3rem;
+  --font-size-5xl-line-height: 1;
+  --font-size-5xl-font-weight: 700;
+
+  --font-size-6xl: 3.75rem;
+  --font-size-6xl-line-height: 1;
+  --font-size-6xl-font-weight: 800;
+
+  --font-size-7xl: 4.5rem;
+  --font-size-7xl-line-height: 1;
+  --font-size-7xl-font-weight: 800;
+
+  --font-size-8xl: 6rem;
+  --font-size-8xl-line-height: 1;
+  --font-size-8xl-font-weight: 800;
+
+  --font-size-9xl: 8rem;
+  --font-size-9xl-line-height: 1;
+  --font-size-9xl-font-weight: 800;
+
+  /* Custom Animations */
+  /* --animation-bounce-slow: bounce 3s infinite;
+    --animation-float: float 4s ease-in-out infinite; */
+
+  /* Custom Box Shadows */
+  --shadow-custom: 0 0 10px rgba(0, 0, 0, 0.15), 0 0 5px rgba(0, 0, 0, 0.1);
+}
