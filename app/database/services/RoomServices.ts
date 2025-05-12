@@ -38,6 +38,7 @@ export async function createRoom(data: {
   return newRoom.save();
 }
 
+// Add document to a room by its ID
 export async function addDocumentToRoom(roomId: string, doc: IDocument): Promise<IRoom | null> {
   await connectDb();
 
@@ -46,6 +47,34 @@ export async function addDocumentToRoom(roomId: string, doc: IDocument): Promise
   const updatedRoom = await Room.findByIdAndUpdate(
     roomId,
     { $push: { documents: doc } },
+    { new: true }
+  );
+
+  return updatedRoom;
+}
+
+// update room tags and folders. data needs to be {folders: ["new folder"], tags: ["new tag1", "new tag2"]}
+export async function updateRoomById(roomId: string, data: Partial<IRoom>): Promise<IRoom | null> {
+  await connectDb();
+  if (!Types.ObjectId.isValid(roomId)) {
+    throw new Error("Invalid room ID");
+  }
+  const updatePayload: any = {};
+
+  // Iterate over folders and tags, add only if non existing
+  if (data.folders?.length) {
+    updatePayload["$addToSet"] = updatePayload["$addToSet"] || {};
+    updatePayload["$addToSet"].folders = { $each: data.folders };
+  }
+
+  if (data.tags?.length) {
+    updatePayload["$addToSet"] = updatePayload["$addToSet"] || {};
+    updatePayload["$addToSet"].tags = { $each: data.tags };
+  }
+
+  const updatedRoom = await Room.findByIdAndUpdate(
+    roomId,
+    updatePayload,
     { new: true }
   );
 

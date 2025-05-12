@@ -29,7 +29,7 @@ export default function RoomPage() {
         }),
       });
       const data = await res.json();
-      if (data.error) {
+      if (data.error || data.status === "error") {
         console.error("error uploading document:", data.error);
         return;
       }
