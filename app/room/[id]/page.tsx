@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import DocModal from "@/app/components/DocModal";
-import { IRoom } from "@/app/database/models/Room";
+import { IRoom, IDocument } from "@/app/database/models/Room";
 
 interface Document {
   _id?: string;
@@ -16,6 +16,9 @@ interface Document {
 export default function RoomPage() {
   const { id } = useParams();
   const [room, setRoom] = useState<IRoom>();
+  const [folders, setFolders] = useState<
+    { folderName: string; documents: IDocument[] }[]
+  >([]);
   const [isDocModalOpen, setIsDocModalOpen] = useState<boolean>(false);
   const [docToDisplay, setDocToDisplay] = useState<Document[]>([]);
 
@@ -34,7 +37,8 @@ export default function RoomPage() {
         console.error("error uploading document:", data.error);
         return;
       }
-      setDocToDisplay([...docToDisplay, data.data]);
+      setDocToDisplay([...docToDisplay, data.data.newDoc]);
+      setFolders(data.data.newFolders);
       setIsDocModalOpen(false);
     } catch (err) {
       console.error("Error adding document:", err);
@@ -51,10 +55,12 @@ export default function RoomPage() {
         body: JSON.stringify({ id }),
       });
       const data = await res.json();
-      setRoom(data.data);
-      setDocToDisplay(data.data.documents);
+      setRoom(data.data.room);
+      setFolders(data.data.folders);
+      setDocToDisplay(data.data.room.documents);
     };
     fetchRoom();
+    console.log(folders);
   }, [id]);
 
   if (!room) return <div className="p-4">Loading room...</div>;
@@ -71,6 +77,51 @@ export default function RoomPage() {
           Upload new doc
         </button>
       </div>
+
+      {/* Folders section */}
+      <h2 className="text-xl font-semibold mt-4 mb-2">Folders:</h2>
+      <ul className="space-y-2">
+        {folders.map((folder, index) => (
+          <li
+            key={index}
+            className="border p-2 rounded flex flex-col items-start"
+          >
+            <p>
+              <strong>Title:</strong> {folder.folderName}
+            </p>
+            <p>
+              <strong>Documents:</strong> {folder.documents.length}
+            </p>
+
+            <p className="text-blue-500 border-b border-b-blue-500">
+              Open Folder
+            </p>
+            <div className="flex flex-col w-full p-2 gap-2">
+            {folder.documents.map((doc, index) => (
+              <div
+                key={index}
+                className="flex items-center justify-between p-2 w-full border rounded-xl "
+              >
+                <p>
+                  <strong> {doc.title}</strong>
+                </p>
+                <p>
+                  <a
+                    href={doc.googleDocsUrl}
+                    target="_blank"
+                    className="text-blue-500 underline"
+                  >
+                    Open Doc
+                  </a>
+                </p>
+              </div>
+            ))}
+            </div>
+          </li>
+        ))}
+      </ul>
+
+      {/* Document Section */}
       <h2 className="text-xl font-semibold mb-2">Documents:</h2>
       <ul className="space-y-2">
         {docToDisplay.map((doc: Document, index: number) => (
@@ -96,6 +147,7 @@ export default function RoomPage() {
           </li>
         ))}
       </ul>
+
       <DocModal
         isOpen={isDocModalOpen}
         onClose={() => setIsDocModalOpen(false)}

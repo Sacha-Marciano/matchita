@@ -84,7 +84,7 @@ export async function POST(req: NextRequest) {
       ${rawText.split("").splice(0, 2000).join("")}
       """
 
-      Suggest the most appropriate title, folder name and up to 5 tags. The best is to use existing folder names and tags.
+      Suggest the most appropriate title, folder name and up to 5 tags.
       If you can't find a good match, provide the best possible folder name and/or tags. You can also mix between new and existing tags.
 
       I will do JSON.parse() on your response so output only this , without any other text or '''json:
@@ -108,6 +108,8 @@ export async function POST(req: NextRequest) {
     const responseBody = JSON.parse(new TextDecoder().decode(response.body));
     const { title, folder, tags } = JSON.parse(responseBody.content[0].text);
 
+    console.log("Claude response:", responseBody.content[0].text);
+    
     // 6. Save inside room
     const newDoc: IDocument = {
       title: title,
@@ -121,11 +123,16 @@ export async function POST(req: NextRequest) {
 
     // 7. Update room tags and folders
     const dataToUpdate = { folders: [folder], tags: tags };
-    await updateRoomById(roomId, dataToUpdate);
+    const newRoom = await updateRoomById(roomId, dataToUpdate);
+
+    const newFolders = newRoom?.folders.map((roomFolder) => ({
+      folderName: roomFolder,
+      documents: newRoom.documents.filter((doc) => doc.folder === roomFolder),
+    }));
 
     // 8. return response
     return NextResponse.json(
-      { status: "saved", data: newDoc },
+      { status: "saved", data: {newDoc : newDoc, newFolders: newFolders} },
       { status: 201 }
     );
   } catch (err) {
