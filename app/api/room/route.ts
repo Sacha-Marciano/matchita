@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { createRoom, getAllRooms } from "@/app/database/services/RoomServices";
+import { createRoom } from "@/app/database/services/RoomServices";
 import connectDb from "@/app/lib/mongodb";
 
 // fetches all rooms to display in home page
