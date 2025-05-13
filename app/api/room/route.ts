@@ -1,34 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { createRoom } from "@/app/database/services/RoomServices";
+import { createRoom, getAllRooms } from "@/app/database/services/RoomServices";
 import connectDb from "@/app/lib/mongodb";
 
 // fetches all rooms to display in home page
 export async function GET(){
-  try {
+  try{
     await connectDb();
-    console.log("✅ Connected to MongoDB from API route");
-
-    return Response.json({ status: "ok", data: [] });
-  } catch (err) {
-    console.error("❌ DB connection error:", err);
-    return Response.json({ status: "error", error: (err as Error).message }, { status: 500 });
+  const res = await getAllRooms();
+  return NextResponse.json(
+    { message: "Rooms fetched", data: res },
+    { status: 200 }
+  );
+  }catch (err) {
+    console.error(err);
+    return NextResponse.json(
+      { error: "An error occured fetching rooms" },
+      { status: 500 }
+    );
   }
-
-  // try{
-  //   await connectDb();
-  // const res = await getAllRooms();
-  // return NextResponse.json(
-  //   { message: "Rooms fetched", data: res },
-  //   { status: 200 }
-  // );
-  // }catch (err) {
-  //   console.error(err);
-  //   return NextResponse.json(
-  //     { error: "An error occured fetching rooms", err : err },
-  //     { status: 500 }
-  //   );
-  // }
 }
 
 // Add a new room to the DB
@@ -52,7 +42,7 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     console.error(err);
     return NextResponse.json(
-      { error: "An error occured creating a room", err: err },
+      { error: "An error occured creating a room" },
       { status: 500 }
     );
   }
