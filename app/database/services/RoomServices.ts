@@ -5,7 +5,7 @@ import { Types } from "mongoose";
 // Get all rooms
 export async function getAllRooms(): Promise<IRoom[]> {
   await connectDb();
-  return Room.find().exec();
+  return Room.find({});
 }
 
 // Get a room by ID
@@ -71,7 +71,7 @@ export async function updateRoomById(
       tags?: { $each: string[] };
     };
   } = {};
-  
+
   // Iterate over folders and tags, add only if non existing
   if (data.folders?.length) {
     updatePayload["$addToSet"] = updatePayload["$addToSet"] || {};
