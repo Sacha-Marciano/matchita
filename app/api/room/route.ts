@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     console.error(err);
     return NextResponse.json(
-      { error: "An error occured creating a room" },
+      { error: "An error occured creating a room", err: err },
       { status: 500 }
     );
   }
