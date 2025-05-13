@@ -1,6 +1,6 @@
 import mongoose, { Schema, Model, Document as MongooseDocument } from "mongoose";
 
-export interface IDocument {
+export interface IDocument extends MongooseDocument {
   title: string;
   googleDocsUrl: string;
   folder: string;

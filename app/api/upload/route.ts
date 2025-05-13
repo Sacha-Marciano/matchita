@@ -73,10 +73,10 @@ export async function POST(req: NextRequest) {
     const claudePrompt = `
       You are a document classification assistant.
 
-      Here are the available folders:
+      Here are the existing folders:
       ${JSON.stringify(room.folders)}
 
-      Here are the available tags:
+      Here are the existing tags:
       ${JSON.stringify(room.tags)}
 
       Analyze the following document:
@@ -86,6 +86,7 @@ export async function POST(req: NextRequest) {
 
       Suggest the most appropriate title, folder name and up to 5 tags.
       If you can't find a good match, provide the best possible folder name and/or tags. You can also mix between new and existing tags.
+      Be specific and concise when naming a folder or a tag.
 
       I will do JSON.parse() on your response so output only this , without any other text or '''json:
 
@@ -111,7 +112,7 @@ export async function POST(req: NextRequest) {
     console.log("Claude response:", responseBody.content[0].text);
     
     // 6. Save inside room
-    const newDoc: IDocument = {
+    const newDoc: Partial<IDocument> = {
       title: title,
       googleDocsUrl: url,
       folder: folder,

@@ -45,6 +45,29 @@ export default function RoomPage() {
     }
   };
 
+  const handleDeleteDoc = async (docId: string) => {
+    try {
+      const res = await fetch(`/api/room/${id}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          roomId: id,
+          docId: docId,
+        }),
+      });
+      const data = await res.json();
+      if (data.error || data.status === "error") {
+        console.error("error uploading document:", data.error);
+        return;
+      }
+      const docToFilter = docToDisplay;
+      setDocToDisplay(docToFilter.filter((doc) => doc._id !== docId));
+      setFolders(data.data.folders);
+    } catch (err) {
+      console.error("Error adding document:", err);
+    }
+  };
+
   useEffect(() => {
     const fetchRoom = async () => {
       const res = await fetch(`/api/room/${id}`, {
@@ -60,7 +83,6 @@ export default function RoomPage() {
       setDocToDisplay(data.data.room.documents);
     };
     fetchRoom();
-    console.log(folders);
   }, [id]);
 
   if (!room) return <div className="p-4">Loading room...</div>;
@@ -97,25 +119,33 @@ export default function RoomPage() {
               Open Folder
             </p>
             <div className="flex flex-col w-full p-2 gap-2">
-            {folder.documents.map((doc, index) => (
-              <div
-                key={index}
-                className="flex items-center justify-between p-2 w-full border rounded-xl "
-              >
-                <p>
-                  <strong> {doc.title}</strong>
-                </p>
-                <p>
-                  <a
-                    href={doc.googleDocsUrl}
-                    target="_blank"
-                    className="text-blue-500 underline"
-                  >
-                    Open Doc
-                  </a>
-                </p>
-              </div>
-            ))}
+              {folder.documents.map((doc, index) => (
+                <div
+                  key={index}
+                  className="flex items-center justify-between p-2 w-full border rounded-xl "
+                >
+                  <p>
+                    <strong> {doc.title}</strong>
+                  </p>
+                  <div className="flex gap-2 items-center">
+                      <a
+                        href={doc.googleDocsUrl}
+                        target="_blank"
+                        className="text-blue-500 underline"
+                      >
+                        Open Doc
+                      </a>
+                      <button
+                        onClick={() => {
+                          handleDeleteDoc(doc._id as string);
+                        }}
+                        className="bg-red-500! text-white! p-1! "
+                      >
+                        Delete Doc
+                      </button>
+                  </div>
+                </div>
+              ))}
             </div>
           </li>
         ))}
@@ -135,7 +165,7 @@ export default function RoomPage() {
             <p>
               <strong>Tags:</strong> {doc.tags.join(", ")}
             </p>
-            <p>
+            <div className="flex gap-2 items-center justify-between w-full">
               <a
                 href={doc.googleDocsUrl}
                 target="_blank"
@@ -143,7 +173,15 @@ export default function RoomPage() {
               >
                 Open Doc
               </a>
-            </p>
+              <button
+                        onClick={() => {
+                          handleDeleteDoc(doc._id as string);
+                        }}
+                        className="bg-red-500! text-white! p-1! "
+                      >
+                        Delete Doc
+                      </button>
+            </div>
           </li>
         ))}
       </ul>
