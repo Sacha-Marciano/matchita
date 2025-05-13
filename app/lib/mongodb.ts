@@ -7,7 +7,7 @@ const connectDb = async (): Promise<void> => {
   }
 
   const mongoUri = process.env.MONGO_URL;
-
+  console.log("Mongo URI: ",mongoUri)
   if (!mongoUri) {
     throw new Error("MONGO_URL environment variable is not defined");
   }

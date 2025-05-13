@@ -1,4 +1,3 @@
-// models/Room.ts
 import mongoose, { Schema, Model, Document as MongooseDocument } from "mongoose";
 
 export interface IDocument {

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import RoomModal from "./components/RoomModal";
 
 interface Room {
@@ -13,7 +13,6 @@ export default function Home() {
   const [rooms, setRooms] = useState<Room[]>([]);
   const [isRoomModalOpen, setisRoomModalOpen] = useState<boolean>(false);
 
-  const testenv = process.env.MONGO_URL
   const handleCreateRoom = async (roomTitle: string) => {
     const res = await fetch("api/room", {
       method: "POST",
@@ -32,15 +31,15 @@ export default function Home() {
     setisRoomModalOpen(false);
   };
 
-  // useEffect(() => {
-  //   const fetchRooms = async () => {
-  //     const res = await fetch("/api/room");
-  //     const data = await res.json();
-  //     setRooms(data.data);
-  //   };
+  useEffect(() => {
+    const fetchRooms = async () => {
+      const res = await fetch("/api/room");
+      const data = await res.json();
+      setRooms(data.data);
+    };
 
-  //   fetchRooms();
-  // }, []);
+    fetchRooms();
+  }, []);
 
   return (
     <main className="w-full min-h-screen p-4 space-y-4">
@@ -65,7 +64,7 @@ export default function Home() {
           </Link>
         ))}
       </div>
-<p>{testenv} </p>
+
       <RoomModal
         isOpen={isRoomModalOpen}
         onClose={() => setisRoomModalOpen(false)}
