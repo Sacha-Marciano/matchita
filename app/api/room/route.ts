@@ -15,7 +15,7 @@ export async function GET(){
   }catch (err) {
     console.error(err);
     return NextResponse.json(
-      { error: "An error occured fetching rooms" },
+      { error: (err as Error).message  },
       { status: 500 }
     );
   }
@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     console.error(err);
     return NextResponse.json(
-      { error: "An error occured creating a room" },
+      { error: (err as Error).message  },
       { status: 500 }
     );
   }
