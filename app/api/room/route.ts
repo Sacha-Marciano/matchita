@@ -15,7 +15,7 @@ export async function GET(){
   }catch (err) {
     console.error(err);
     return NextResponse.json(
-      { error: "An error occured fetching rooms" },
+      { error: "An error occured fetching rooms", err : err },
       { status: 500 }
     );
   }
