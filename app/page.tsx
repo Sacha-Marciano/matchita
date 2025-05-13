@@ -31,6 +31,22 @@ export default function Home() {
     setisRoomModalOpen(false);
   };
 
+  const handleDeleteRoom = async (roomId: string) => {
+    const res = await fetch("api/room", {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ id: roomId }),
+    });
+    const data = await res.json();
+    if (data.error) {
+      console.error(data.error);
+      return;
+    }
+    setRooms(rooms.filter((room) => room._id !== roomId));
+  };
+
   useEffect(() => {
     const fetchRooms = async () => {
       const res = await fetch("/api/room");
@@ -55,13 +71,17 @@ export default function Home() {
       </div>
       <div className="grid gap-4">
         {rooms.map((room) => (
-          <Link
+          <div
+            className="flex items-center justify-between p-4 rounded-xl border hover:bg-gray-100 transition "
             key={room._id}
-            href={`/room/${room._id}`}
-            className="block p-4 rounded-lg border hover:bg-gray-100 transition"
           >
-            {room.title}
-          </Link>
+            <Link href={`/room/${room._id}`} className="block p-4 ">
+              {room.title}
+            </Link>
+            <button onClick={() => handleDeleteRoom(room._id)} className="bg-red-500! text-white! ">
+              Delete Room
+            </button>
+          </div>
         ))}
       </div>
 

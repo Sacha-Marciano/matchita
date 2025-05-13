@@ -34,6 +34,21 @@ export async function createRoom(data: {
   return newRoom.save();
 }
 
+// Delete a room by ID
+export async function deleteRoomById(id:string): Promise<IRoom | null>{
+  if (!Types.ObjectId.isValid(id)) {
+    throw new Error("Invalid room ID");
+  }
+
+  const deletedRoom = await Room.findByIdAndDelete(id).exec();
+
+  if (!deletedRoom) {
+    throw new Error("Room not found");
+  }
+
+  return deletedRoom;
+}
+
 // Add document to a room by its ID
 export async function addDocumentToRoom(
   roomId: string,
