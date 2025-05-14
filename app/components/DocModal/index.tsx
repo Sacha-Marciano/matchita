@@ -1,13 +1,21 @@
+import { IDocument } from "@/app/database/models/Room";
 import { FC, useState } from "react";
 
 type RoomModalProps = {
   isOpen: boolean;
   onClose: () => void;
   handleSubmit: (data: string) => void;
+  duplicate: IDocument | undefined;
 };
 
-const DocModal: FC<RoomModalProps> = ({ isOpen, onClose, handleSubmit }) => {
+const DocModal: FC<RoomModalProps> = ({
+  isOpen,
+  onClose,
+  handleSubmit,
+  duplicate,
+}) => {
   const [docUrl, setDocUrl] = useState<string>("");
+
   return (
     // overlay
     <div
@@ -33,11 +41,12 @@ const DocModal: FC<RoomModalProps> = ({ isOpen, onClose, handleSubmit }) => {
             value={docUrl}
           />
         </div>
-        <button
-          onClick={() => handleSubmit(docUrl)}
-        >
-          Upload Doc
-        </button>
+        {duplicate && (
+          <p className="text-3xl font-black text-shadow-pink-600">
+            Duplicate found ! : {duplicate?.googleDocsUrl}
+          </p>
+        )}
+        <button onClick={() => handleSubmit(docUrl)}>Upload Doc</button>
       </div>
     </div>
   );

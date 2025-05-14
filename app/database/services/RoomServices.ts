@@ -14,6 +14,7 @@ export async function getRoomById(id: string): Promise<IRoom | null> {
   }
 
   return Room.findById(id).exec();
+  
 }
 
 // Create a new room

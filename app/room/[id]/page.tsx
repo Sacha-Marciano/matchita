@@ -21,6 +21,7 @@ export default function RoomPage() {
   >([]);
   const [isDocModalOpen, setIsDocModalOpen] = useState<boolean>(false);
   const [docToDisplay, setDocToDisplay] = useState<Document[]>([]);
+  const [duplicate, setDuplicate] = useState<IDocument>();
 
   const handleAddDoc = async (url: string) => {
     try {
@@ -35,6 +36,10 @@ export default function RoomPage() {
       const data = await res.json();
       if (data.error || data.status === "error") {
         console.error("error uploading document:", data.error);
+        return;
+      }
+      if (data.status === "duplicate"){
+        setDuplicate(data.existingDoc);
         return;
       }
       setDocToDisplay([...docToDisplay, data.data.newDoc]);
@@ -190,6 +195,7 @@ export default function RoomPage() {
         isOpen={isDocModalOpen}
         onClose={() => setIsDocModalOpen(false)}
         handleSubmit={handleAddDoc}
+        duplicate={duplicate}
       />
     </div>
   );

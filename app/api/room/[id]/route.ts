@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectDb from "@/app/lib/mongodb";
-import Room from "@/app/database/models/Room";
 import { Types } from "mongoose";
-import { deleteDocumentFromRoom } from "@/app/database/services/RoomServices";
+import {
+  deleteDocumentFromRoom,
+  getRoomById,
+} from "@/app/database/services/RoomServices";
 
 // Here we get the room by id to display all the document in it
 // The uploading of document is handled in /api/upload
@@ -17,13 +19,11 @@ export async function POST(req: NextRequest) {
   }
   try {
     await connectDb();
-    const room = await Room.findById(id);
-    if (!room)
-      return NextResponse.json({ error: "Room not found" }, { status: 404 });
+    const room = await getRoomById(id);
 
-    const folders = room.folders.map((roomFolder) => ({
+    const folders = room?.folders.map((roomFolder) => ({
       folderName: roomFolder,
-      documents: room.documents.filter((doc) => doc.folder === roomFolder),
+      documents: room?.documents.filter((doc) => doc.folder === roomFolder),
     }));
 
     return NextResponse.json(
@@ -52,7 +52,7 @@ export async function DELETE(req: NextRequest) {
   try {
     await connectDb();
 
-    const updatedRoom = await deleteDocumentFromRoom(roomId, docId)
+    const updatedRoom = await deleteDocumentFromRoom(roomId, docId);
 
     if (!updatedRoom) {
       return NextResponse.json({ error: "Room not found" }, { status: 404 });

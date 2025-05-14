@@ -1,14 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
-import {
-  BedrockRuntimeClient,
-  InvokeModelCommand,
-} from "@aws-sdk/client-bedrock-runtime";
-import RoomModel, { IDocument } from "@/app/database/models/Room";
+import { BedrockRuntimeClient } from "@aws-sdk/client-bedrock-runtime";
+import { IDocument } from "@/app/database/models/Room";
 import connectDb from "@/app/lib/mongodb";
 import {
   addDocumentToRoom,
+  getRoomById,
   updateRoomById,
 } from "@/app/database/services/RoomServices";
+import { getClassifyCommand, getClassifyPrompt } from "@/app/utils/ClaudeVars";
+import { getVectorizeCommand } from "@/app/utils/TitanVars";
+import { duplicateCheck } from "@/app/utils/DuplicateCheck";
+import { getNovaClassifyCommand } from "@/app/utils/NovaVars";
 
 ////////////////////////////////////////////////////////////////////////////////////
 // Basically the most important route. Almost all AI interactions are made here   //
@@ -28,8 +30,12 @@ export async function POST(req: NextRequest) {
 
     await connectDb();
 
-    // 1. Fetch raw text from Google Doc
+    // 1. Get all variables (rawText, room, ect)
     const rawText = await fetch(url).then((res) => res.text());
+    const room = await getRoomById(roomId);
+    if (!room) {
+      return NextResponse.json({ error: "Room not found" }, { status: 404 });
+    }
 
     //2. Initialize bedrock client
     const client = new BedrockRuntimeClient({
@@ -41,84 +47,30 @@ export async function POST(req: NextRequest) {
     });
 
     // 3. Vectorize using Titan
-    const payload = {
-      inputText: rawText.slice(0, 20000),
-      dimensions: 512,
-      normalize: true,
-    };
+    const embedCommand = getVectorizeCommand(rawText.slice(0, 20000));
 
-    const embedCommand = new InvokeModelCommand({
-      modelId: "amazon.titan-embed-text-v2:0",
-      contentType: "application/json",
-      accept: "*/*",
-      body: JSON.stringify(payload),
-    });
     const embedRes = await client.send(embedCommand);
     const embedParsed = JSON.parse(Buffer.from(embedRes.body).toString());
     const embedding = embedParsed.embedding as number[];
-    // console.log("embedding", embedding);
 
-    // 4. Get room and check duplicates
-    const room = await RoomModel.findById(roomId);
-    if (!room) {
-      return NextResponse.json({ error: "Room not found" }, { status: 404 });
-    }
+    // 4. Check duplicates
+    const duplicate = await duplicateCheck(room, embedding, url);
 
-    const cosineSim = (a: number[], b: number[]) => {
-      const dot = a.reduce((sum, val, i) => sum + val * b[i], 0);
-      const magA = Math.sqrt(a.reduce((sum, val) => sum + val ** 2, 0));
-      const magB = Math.sqrt(b.reduce((sum, val) => sum + val ** 2, 0));
-      return dot / (magA * magB);
-    };
-
-    const duplicate = room.documents.find((doc) => cosineSim(doc.vector, embedding) >= 0.9);
     if (duplicate) {
-      return NextResponse.json({ status: "duplicate", existingDocId: duplicate._id }, { status: 200 });
+      return NextResponse.json(
+        { status: "duplicate", existingDoc: duplicate },
+        { status: 200 }
+      );
     }
 
     // 5. Ask Claude for classification
-    const claudePrompt = `
-      You are a document classification assistant.
+    const claudePrompt = getClassifyPrompt(room, rawText);
 
-      Here are the existing folders:
-      ${JSON.stringify(room.folders)}
-
-      Here are the existing tags:
-      ${JSON.stringify(room.tags)}
-
-      Analyze the following document:
-      """
-      ${rawText.slice(0, 10000)}
-      """
-
-      Suggest the most appropriate title, folder name and up to 5 tags.
-      If you can't find a good match, provide the best possible folder name and/or tags. You can also mix between new and existing tags.
-      Be specific and concise when naming a folder or a tag.
-
-      I will do JSON.parse() on your response so output only this , without any other text or '''json:
-
-      {"title": "Document Title","folder": "Folder Name","tags": ["tag1", "tag2", "tag3"]}
-      `.trim();
-
-    const claudeCommand = new InvokeModelCommand({
-      modelId: claudeModelId,
-      contentType: "application/json",
-      accept: "application/json",
-      body: JSON.stringify({
-        anthropic_version: "bedrock-2023-05-31",
-        messages: [
-          { role: "user", content: [{ type: "text", text: claudePrompt }] },
-        ],
-        max_tokens: 1000,
-      }),
-    });
-
-    // Handle data
+    const claudeCommand = getClassifyCommand(claudeModelId, claudePrompt);
+    const novaCommand = getNovaClassifyCommand(claudePrompt);
     const response = await client.send(claudeCommand);
     const responseBody = JSON.parse(new TextDecoder().decode(response.body));
     const { title, folder, tags } = JSON.parse(responseBody.content[0].text);
-
-    // console.log("Claude response:", responseBody.content[0].text);
 
     // 6. Save inside room
     const newDoc: Partial<IDocument> = {
