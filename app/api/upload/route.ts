@@ -41,14 +41,22 @@ export async function POST(req: NextRequest) {
     });
 
     // 3. Vectorize using Titan
-    // const embedCommand = new InvokeModelCommand({
-    //   modelId: titanModelId,
-    //   contentType: "application/json",
-    //   body: JSON.stringify({ inputText: rawText }),
-    // });
-    // const embedRes = await client.send(embedCommand);
-    // const embedParsed = JSON.parse(Buffer.from(embedRes.body).toString());
-    // const embedding = embedParsed.embedding as number[];
+    const payload = {
+      inputText: rawText.slice(0, 20000),
+      dimensions: 512,
+      normalize: true,
+    };
+
+    const embedCommand = new InvokeModelCommand({
+      modelId: "amazon.titan-embed-text-v2:0",
+      contentType: "application/json",
+      accept: "*/*",
+      body: JSON.stringify(payload),
+    });
+    const embedRes = await client.send(embedCommand);
+    const embedParsed = JSON.parse(Buffer.from(embedRes.body).toString());
+    const embedding = embedParsed.embedding as number[];
+    // console.log("embedding", embedding);
 
     // 4. Get room and check duplicates
     const room = await RoomModel.findById(roomId);
@@ -56,17 +64,17 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Room not found" }, { status: 404 });
     }
 
-    // const cosineSim = (a: number[], b: number[]) => {
-    //   const dot = a.reduce((sum, val, i) => sum + val * b[i], 0);
-    //   const magA = Math.sqrt(a.reduce((sum, val) => sum + val ** 2, 0));
-    //   const magB = Math.sqrt(b.reduce((sum, val) => sum + val ** 2, 0));
-    //   return dot / (magA * magB);
-    // };
+    const cosineSim = (a: number[], b: number[]) => {
+      const dot = a.reduce((sum, val, i) => sum + val * b[i], 0);
+      const magA = Math.sqrt(a.reduce((sum, val) => sum + val ** 2, 0));
+      const magB = Math.sqrt(b.reduce((sum, val) => sum + val ** 2, 0));
+      return dot / (magA * magB);
+    };
 
-    // const duplicate = room.documents.find((doc) => cosineSim(doc.vector, embedding) >= 0.9);
-    // if (duplicate) {
-    //   return NextResponse.json({ status: "duplicate", existingDocId: duplicate._id }, { status: 200 });
-    // }
+    const duplicate = room.documents.find((doc) => cosineSim(doc.vector, embedding) >= 0.9);
+    if (duplicate) {
+      return NextResponse.json({ status: "duplicate", existingDocId: duplicate._id }, { status: 200 });
+    }
 
     // 5. Ask Claude for classification
     const claudePrompt = `
@@ -80,7 +88,7 @@ export async function POST(req: NextRequest) {
 
       Analyze the following document:
       """
-      ${rawText.split("").splice(0, 2000).join("")}
+      ${rawText.slice(0, 10000)}
       """
 
       Suggest the most appropriate title, folder name and up to 5 tags.
@@ -98,7 +106,9 @@ export async function POST(req: NextRequest) {
       accept: "application/json",
       body: JSON.stringify({
         anthropic_version: "bedrock-2023-05-31",
-        messages: [{ role: "user", content: claudePrompt }],
+        messages: [
+          { role: "user", content: [{ type: "text", text: claudePrompt }] },
+        ],
         max_tokens: 1000,
       }),
     });
@@ -108,15 +118,15 @@ export async function POST(req: NextRequest) {
     const responseBody = JSON.parse(new TextDecoder().decode(response.body));
     const { title, folder, tags } = JSON.parse(responseBody.content[0].text);
 
-    console.log("Claude response:", responseBody.content[0].text);
-    
+    // console.log("Claude response:", responseBody.content[0].text);
+
     // 6. Save inside room
     const newDoc: Partial<IDocument> = {
       title: title,
       googleDocsUrl: url,
       folder: folder,
-      tags: tags, 
-      vector: [0.1, 0.2, 0.3], // Replace later with Titan embedding,
+      tags: tags,
+      vector: embedding,
       createdAt: new Date(),
     };
     await addDocumentToRoom(roomId, newDoc);
@@ -132,7 +142,7 @@ export async function POST(req: NextRequest) {
 
     // 8. return response
     return NextResponse.json(
-      { status: "saved", data: {newDoc : newDoc, newFolders: newFolders} },
+      { status: "saved", data: { newDoc: newDoc, newFolders: newFolders } },
       { status: 201 }
     );
   } catch (err) {

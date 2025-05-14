@@ -102,7 +102,7 @@ export default function RoomPage() {
 
       {/* Folders section */}
       <h2 className="text-xl font-semibold mt-4 mb-2">Folders:</h2>
-      <ul className="space-y-2">
+      <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
         {folders.map((folder, index) => (
           <li
             key={index}
@@ -127,22 +127,22 @@ export default function RoomPage() {
                   <p>
                     <strong> {doc.title}</strong>
                   </p>
-                  <div className="flex gap-2 items-center">
-                      <a
-                        href={doc.googleDocsUrl}
-                        target="_blank"
-                        className="text-blue-500 underline"
-                      >
-                        Open Doc
-                      </a>
-                      <button
-                        onClick={() => {
-                          handleDeleteDoc(doc._id as string);
-                        }}
-                        className="bg-red-500! text-white! p-1! "
-                      >
-                        Delete Doc
-                      </button>
+                  <div className="flex gap-2 ">
+                    <a
+                      href={doc.googleDocsUrl}
+                      target="_blank"
+                      className="py-2 px-4 bg-primary border border-secondary hover:bg-hover text-matchita-text hover:text-matchita-text-alt shadow-2xl rounded-xl text-nowrap! text-ellipsis! text-sm"
+                    >
+                      Open Doc
+                    </a>
+                    <button
+                      onClick={() => {
+                        handleDeleteDoc(doc._id as string);
+                      }}
+                      className="bg-red-500! text-white! text-nowrap! text-ellipsis! text-sm!"
+                    >
+                      Delete Doc
+                    </button>
                   </div>
                 </div>
               ))}
@@ -153,9 +153,9 @@ export default function RoomPage() {
 
       {/* Document Section */}
       <h2 className="text-xl font-semibold mb-2">Documents:</h2>
-      <ul className="space-y-2">
+      <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
         {docToDisplay.map((doc: Document, index: number) => (
-          <li key={index} className="border p-2 rounded">
+          <li key={index} className="border p-2 rounded space-y-2">
             <p>
               <strong>Title:</strong> {doc.title}
             </p>
@@ -165,22 +165,22 @@ export default function RoomPage() {
             <p>
               <strong>Tags:</strong> {doc.tags.join(", ")}
             </p>
-            <div className="flex gap-2 items-center justify-between w-full">
+            <div className="flex gap-2 items-center w-full">
               <a
                 href={doc.googleDocsUrl}
                 target="_blank"
-                className="text-blue-500 underline"
+                className="py-2 px-4 bg-primary border border-secondary hover:bg-hover text-matchita-text hover:text-matchita-text-alt shadow-2xl rounded-xl text-nowrap text-ellipsis text-sm"
               >
                 Open Doc
               </a>
               <button
-                        onClick={() => {
-                          handleDeleteDoc(doc._id as string);
-                        }}
-                        className="bg-red-500! text-white! p-1! "
-                      >
-                        Delete Doc
-                      </button>
+                onClick={() => {
+                  handleDeleteDoc(doc._id as string);
+                }}
+                className="bg-red-500! text-white! text-nowrap! text-ellipsis! text-sm! "
+              >
+                Delete Doc
+              </button>
             </div>
           </li>
         ))}
