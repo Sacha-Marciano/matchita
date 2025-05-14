@@ -15,6 +15,7 @@ export interface IRoom extends MongooseDocument {
   folders: string[];
   tags: string[];
   documents: IDocument[];
+  avatar: string;
   createdAt: Date;
 }
 
@@ -33,6 +34,7 @@ const RoomSchema = new Schema<IRoom>({
   folders: { type: [String], default: [] },
   tags: { type: [String], default: [] },
   documents: { type: [DocumentSchema], default: [] },
+  avatar: {type: String, required: true},
   createdAt: { type: Date, default: Date.now },
 });
 

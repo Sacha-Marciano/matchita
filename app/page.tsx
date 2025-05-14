@@ -7,6 +7,7 @@ import RoomCard from "./components/RoomCard";
 interface Room {
   _id: string;
   title: string;
+  avatar : string;
 }
 
 export default function Home() {
@@ -60,7 +61,7 @@ export default function Home() {
   return (
     <main className="w-full min-h-screen p-4 space-y-4">
       <div className="w-full flex justify-between items-center">
-        <h1 className="text-4xl font-bold mb-6">Matchita Rooms</h1>
+        <h1 className="text-2xl font-bold">Matchita Rooms</h1>
         <button
           onClick={() => {
             setisRoomModalOpen(true);
@@ -75,6 +76,7 @@ export default function Home() {
             key={room._id}
             _id={room._id}
             title={room.title}
+            avatar={room.avatar}
             handleDeleteRoom={handleDeleteRoom}
           />
         ))}

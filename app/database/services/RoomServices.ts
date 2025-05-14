@@ -23,6 +23,7 @@ export async function createRoom(data: {
   folders?: string[];
   tags?: string[];
   documents?: IDocument[];
+  avatar: string;
   createdAt: Date;
 }): Promise<IRoom> {
   const newRoom = new Room({

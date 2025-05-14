@@ -1,7 +1,11 @@
 @import "tailwindcss";
 
+body {
+  @apply bg-bg text-matchita-text;
+}
+
 button {
-  @apply py-2 px-4 bg-primary border border-secondary hover:bg-hover text-matchita-text hover:text-matchita-text-alt shadow-2xl rounded-xl;
+  @apply font-primary p-2 bg-matchita-400 border border-secondary hover:bg-hover text-matchita-text hover:text-matchita-text-alt shadow-2xl rounded-xl;
 }
 
 @theme {
@@ -12,6 +16,9 @@ button {
   --breakpoint-lg: 1024px;
   --breakpoint-xl: 1280px;
   --breakpoint-2xl: 1536px;
+
+  /* Font Family */
+  --font-primary: var(--font-poppins), sans-serif;
 
   /* Main Theme Colors */
   --color-matchita-50: #faf5ff;
@@ -30,8 +37,8 @@ button {
   --color-accent-alt: #facc15; /* Vibrant yellow */
 
   /* Backgrounds */
-  --color-bg: #fdf4ff; /* very soft lavender */
-  --color-bg-alt: #f3e8ff;
+  --color-bg: #6b21a8; /* very soft lavender */
+  --color-bg-alt: #fdf4ff;
 
   /* Hover */
   --color-hover: var(--color-matchita-300);

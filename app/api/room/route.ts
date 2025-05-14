@@ -27,15 +27,23 @@ export async function GET() {
 
 // Add a new room to the DB
 export async function POST(req: NextRequest) {
+
+  const getRandomAvatar = () => {
+    const randIndex = Math.floor(Math.random() * 5 + 1); // 0 to 5
+    return `/avatars/rooms/${randIndex}.png`;
+  };
+
   try {
     await connectDb();
     const { title } = await req.json();
+
 
     const newRoom = await createRoom({
       title,
       folders: [],
       tags: [],
       documents: [],
+      avatar: getRandomAvatar(),
       createdAt: new Date(),
     });
 
