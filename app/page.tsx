@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import RoomModal from "./components/RoomModal";
 import RoomCard from "./components/RoomCard";

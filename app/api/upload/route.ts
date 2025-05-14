@@ -41,13 +41,12 @@ export async function POST(req: NextRequest) {
     });
 
     // 3. Vectorize using Titan
-    // const bedrock = new BedrockRuntimeClient({ region: REGION });
     // const embedCommand = new InvokeModelCommand({
     //   modelId: titanModelId,
     //   contentType: "application/json",
     //   body: JSON.stringify({ inputText: rawText }),
     // });
-    // const embedRes = await bedrock.send(embedCommand);
+    // const embedRes = await client.send(embedCommand);
     // const embedParsed = JSON.parse(Buffer.from(embedRes.body).toString());
     // const embedding = embedParsed.embedding as number[];
 
