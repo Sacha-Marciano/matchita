@@ -10,7 +10,6 @@ import {
 import { getClassifyCommand, getClassifyPrompt } from "@/app/utils/ClaudeVars";
 import { getVectorizeCommand } from "@/app/utils/TitanVars";
 import { duplicateCheck } from "@/app/utils/DuplicateCheck";
-import { getNovaClassifyCommand } from "@/app/utils/NovaVars";
 
 ////////////////////////////////////////////////////////////////////////////////////
 // Basically the most important route. Almost all AI interactions are made here   //
@@ -67,7 +66,6 @@ export async function POST(req: NextRequest) {
     const claudePrompt = getClassifyPrompt(room, rawText);
 
     const claudeCommand = getClassifyCommand(claudeModelId, claudePrompt);
-    const novaCommand = getNovaClassifyCommand(claudePrompt);
     const response = await client.send(claudeCommand);
     const responseBody = JSON.parse(new TextDecoder().decode(response.body));
     const { title, folder, tags } = JSON.parse(responseBody.content[0].text);
