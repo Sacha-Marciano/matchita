@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import RoomModal from "./components/RoomModal";
+import RoomCard from "./components/RoomCard";
 
 interface Room {
   _id: string;
@@ -69,19 +70,14 @@ export default function Home() {
           Create New Room
         </button>
       </div>
-      <div className="grid gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {rooms.map((room) => (
-          <div
-            className="flex items-center justify-between p-4 rounded-xl border hover:bg-gray-100 transition "
+          <RoomCard
             key={room._id}
-          >
-            <Link href={`/room/${room._id}`} className="block p-4 ">
-              {room.title}
-            </Link>
-            <button onClick={() => handleDeleteRoom(room._id)} className="bg-red-500! text-white! ">
-              Delete Room
-            </button>
-          </div>
+            _id={room._id}
+            title={room.title}
+            handleDeleteRoom={handleDeleteRoom}
+          />
         ))}
       </div>
 
