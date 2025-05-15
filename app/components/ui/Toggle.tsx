@@ -8,7 +8,7 @@ const Toggle = ({ options, onToggle }: ToggleProps) => {
   const [selected, setSelected] = useState<string>(options[0]);
   return (
     <div className="w-full flex items-center justify-between bg-bg-alt rounded-full p-1">
-      {options.map((option, index) => {
+      {options.map((option) => {
         return (
           <div
             key={option}

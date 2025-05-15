@@ -7,7 +7,6 @@ export interface IDocument extends MongooseDocument {
   tags: string[];
   vector: number[];
   createdAt: Date;
-  hash: string;
 }
 
 export interface IRoom extends MongooseDocument {
@@ -26,7 +25,6 @@ const DocumentSchema = new Schema<IDocument>({
   tags: { type: [String], default: [] },
   vector: { type: [Number], required: true },
   createdAt: { type: Date, default: Date.now },
-  hash: {type: String, required: true},
 });
 
 const RoomSchema = new Schema<IRoom>({

@@ -1,10 +1,15 @@
 import { IRoom } from "../database/models/Room";
 
-export const duplicateCheck = async (room: IRoom, embedding: number[], url: string) => {
+export const duplicateCheck = async (
+  room: IRoom,
+  embedding: number[],
+  url: string
+) => {
   const cosineSim = (a: number[], b: number[]) => {
     const dot = a.reduce((sum, val, i) => sum + val * b[i], 0);
     const magA = Math.sqrt(a.reduce((sum, val) => sum + val ** 2, 0));
     const magB = Math.sqrt(b.reduce((sum, val) => sum + val ** 2, 0));
+    console.log (dot / (magA * magB));
     return dot / (magA * magB);
   };
 
@@ -14,5 +19,5 @@ export const duplicateCheck = async (room: IRoom, embedding: number[], url: stri
     return urlDuplicate;
   }
 
-  return room.documents.find((doc) => cosineSim(doc.vector, embedding) >= 0.96);
+  return room.documents.filter((doc) => cosineSim(doc.vector, embedding) >= 0.89);
 };

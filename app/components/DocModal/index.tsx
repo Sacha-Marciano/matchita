@@ -1,5 +1,5 @@
 import { IDocument } from "@/app/database/models/Room";
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
 
 type RoomModalProps = {
   isOpen: boolean;
@@ -16,6 +16,10 @@ const DocModal: FC<RoomModalProps> = ({
 }) => {
   const [docUrl, setDocUrl] = useState<string>("");
 
+  useEffect(() => {
+    if (!duplicate) setDocUrl("");
+  }, [isOpen,duplicate]);
+
   return (
     // overlay
     <div
@@ -26,7 +30,7 @@ const DocModal: FC<RoomModalProps> = ({
     >
       {/* Modal */}
       <div
-        className="bg-white p-4 rounded-xl min-w-[50%] min-h-[50%] flex flex-col items-start justify-between"
+        className="bg-white p-4 rounded-xl min-w-[50%] min-h-[50%] flex flex-col items-stretch justify-between text-matchita-900"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex flex-col gap-2">
@@ -36,13 +40,13 @@ const DocModal: FC<RoomModalProps> = ({
           <input
             type="text"
             id="room-title"
-            className="border border-black"
+            className="border border-black w-full"
             onChange={(e) => setDocUrl(e.target.value)}
             value={docUrl}
           />
         </div>
         {duplicate && (
-          <p className="text-3xl font-black text-shadow-pink-600">
+          <p className="text-xl font-black text-shadow-pink-600">
             Duplicate found ! : {duplicate?.googleDocsUrl}
           </p>
         )}

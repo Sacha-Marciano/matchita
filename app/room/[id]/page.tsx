@@ -25,28 +25,70 @@ export default function RoomPage() {
   const [duplicate, setDuplicate] = useState<IDocument>();
   const [dashView, setDashView] = useState<string>("Folders");
 
-  const handleAddDoc = async (url: string) => {
+  const [step, setStep] = useState<"" | "embed" | "dup-check" | "classify">("");
+
+  useEffect(() => {
+    console.log(step);
+  }, [step]);
+
+  const handleAddDoc = async (docUrl: string) => {
+
+    const url = docUrl.split("/edit")[0] + "/export?format=txt"
+
+    setDuplicate(undefined);
+    
     try {
-      const res = await fetch(`/api/upload`, {
+
+      // Embed document
+      setStep("embed");
+
+      const embedRes = await fetch("/api/embed", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          url,
-          roomId: id,
-        }),
+        body: JSON.stringify({ url }),
       });
-      const data = await res.json();
-      if (data.error || data.status === "error") {
-        console.error("error uploading document:", data.error);
-        return;
+
+      const embedData = await embedRes.json();
+
+      if (embedData.status !== "vectorized") {
+        throw new Error("Document embedding failed");
       }
-      if (data.status === "duplicate") {
-        setDuplicate(data.existingDoc);
-        return;
+
+      // Check Duplicate
+      setStep("dup-check");
+
+      const dupRes = await fetch("/api/duplicate-check", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ embedding: embedData.data ,url , roomId: id }),
+      });
+
+      const dupData = await dupRes.json();
+
+      if (dupData.status === "duplicate") {
+        setDuplicate(dupData.data.existingDoc)
+        throw new Error("Duplicate found");
       }
-      setDocToDisplay([...docToDisplay, data.data.newDoc]);
-      setFolders(data.data.newFolders);
+
+      // Classify doc by folder and tags
+      setStep("classify");
+      const classRes = await fetch("/api/classify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ embedding: embedData.data ,url , roomId: id }),
+      });
+
+      const classData = await classRes.json();
+
+      if (classData.status !== "saved") {
+        throw new Error("Error classifying document");
+      }
+
+      // If all promise statuses are OK, update frontend
+      setDocToDisplay([...docToDisplay, classData.data.newDoc]);
+      setFolders(classData.data.newFolders);
       setIsDocModalOpen(false);
+      setDuplicate(undefined);
     } catch (err) {
       console.error("Error adding document:", err);
     }
@@ -64,14 +106,14 @@ export default function RoomPage() {
       });
       const data = await res.json();
       if (data.error || data.status === "error") {
-        console.error("error uploading document:", data.error);
+        console.error("error deleting document:", data.error);
         return;
       }
       const docToFilter = docToDisplay;
       setDocToDisplay(docToFilter.filter((doc) => doc._id !== docId));
       setFolders(data.data.folders);
     } catch (err) {
-      console.error("Error adding document:", err);
+      console.error("Error deleting document:", err);
     }
   };
 

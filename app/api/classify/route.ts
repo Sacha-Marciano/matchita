@@ -7,56 +7,25 @@ import {
   updateRoomById,
 } from "@/app/database/services/RoomServices";
 
-import { duplicateCheck } from "@/app/utils/DuplicateCheck";
-
 ////////////////////////////////////////////////////////////////////////////////////
-// Basically the most important route. Almost all AI interactions are made here   //
 //                                                                                //
-//                      HANDLE WITH CARE !!!                                      //
+//   This routes must be triggered after the duplicate check and receives all the //
+//    new doc info in order to classify it and save it in MongoDB                 //
 //                                                                                //
 ////////////////////////////////////////////////////////////////////////////////////
-
 
 export async function POST(req: NextRequest) {
   try {
-    const { url, roomId } = await req.json();
+    const { embedding, url, roomId } = await req.json();
     if (!url || !roomId) throw new Error("Missing URL or Room ID");
 
     await connectDb();
 
     // 1. Get all variables (rawText, room, ect)
     const text = await fetch(url).then((res) => res.text());
-    const rawText = text.toLowerCase().replace(/\s+/g, " ").trim();
     const room = await getRoomById(roomId);
     if (!room) {
       return NextResponse.json({ error: "Room not found" }, { status: 404 });
-    }
-
-    //2. Vectorize with relevance
-    const vectorRes = await fetch(
-      "https://hook.eu2.make.com/2vo5qg2wbxmdtbnuwr0g621yck9beqpf",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: rawText }),
-      }
-    );
-    const embedding = await vectorRes.json();
-
-    // 3. Check duplicates
-    const duplicate = await duplicateCheck(room, embedding, url);
-
-    if (duplicate) {
-      return NextResponse.json(
-        {
-          status: "duplicate",
-          data: {
-            existingDoc: duplicate,
-            newVector: embedding,
-          },
-        },
-        { status: 200 }
-      );
     }
 
     // 5. Ask Relevance for classification
@@ -66,7 +35,7 @@ export async function POST(req: NextRequest) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          text: rawText,
+          text: text,
           folders: room.folders,
           tags: room.tags,
         }),
