@@ -1,6 +1,5 @@
 import { IDocument } from "@/app/database/models/Room";
-import { ChevronDown, ChevronUp } from "lucide-react";
-import React, { useState } from "react";
+import React from "react";
 import FolderCard from "../FolderCard";
 
 type FolderSectionProps = {
