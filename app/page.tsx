@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import RoomModal from "./components/RoomModal";
-import RoomCard from "./components/RoomCard";
+import RoomModal from "./components/Rooms/RoomModal";
+import RoomCard from "./components/Rooms/RoomCard";
 
 interface Room {
   _id: string;

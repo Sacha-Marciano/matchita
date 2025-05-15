@@ -38,7 +38,7 @@ const RoomCard = ({ _id, title, avatar, handleDeleteRoom }: RoomCardProps) => {
       Delete Room
     </button> */}
       {optionsOpen && (
-        <div className="absolute top-8 right-3 bg-bg-alt border-2 border-matchita-900 shadow-lg rounded-lg p-4 flex flex-col gap-2">
+        <div className="absolute top-2 right-8 bg-bg-alt border-2 border-matchita-900 shadow-lg rounded-lg p-4 flex flex-col gap-2">
           <button disabled>Edit</button>
           <button
             onClick={() => {

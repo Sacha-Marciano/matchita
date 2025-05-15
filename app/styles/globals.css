@@ -5,7 +5,8 @@ body {
 }
 
 button {
-  @apply font-primary p-2 bg-matchita-400 border border-secondary hover:bg-hover text-matchita-text hover:text-matchita-text-alt shadow-2xl rounded-xl;
+  @apply font-primary p-2 bg-matchita-600 border border-secondary hover:bg-hover text-matchita-text hover:text-matchita-text-alt shadow-2xl rounded-xl;
+  @apply disabled:bg-matchita-200 disabled:text-gray-400 disabled:cursor-not-allowed;
 }
 
 @theme {
