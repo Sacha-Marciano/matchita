@@ -82,7 +82,7 @@ export async function POST(req: NextRequest) {
       googleDocsUrl: url,
       folder: folder,
       tags: tags,
-      vector: embedding,
+      embeddedChunks: embedding,
       createdAt: new Date(),
     };
     await addDocumentToRoom(roomId, newDoc);
