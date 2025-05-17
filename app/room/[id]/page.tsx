@@ -42,10 +42,10 @@ export default function RoomPage() {
         body: JSON.stringify({ url }),
       });
 
-      const embedData = await embedRes.json();
-      setStandByVector(embedData.data);
+      const embeddedChunks = await embedRes.json();
+      setStandByVector(embeddedChunks.data);
 
-      if (embedData.status !== "vectorized") {
+      if (embeddedChunks.status !== "vectorized") {
         throw new Error("Document embedding failed");
       }
 
@@ -55,7 +55,7 @@ export default function RoomPage() {
       const dupRes = await fetch("/api/duplicate-check", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ embedding: embedData.data, url, roomId: id }),
+        body: JSON.stringify({ embeddedChunks: embeddedChunks.data, url, roomId: id }),
       });
 
       const dupData = await dupRes.json();
@@ -63,7 +63,7 @@ export default function RoomPage() {
       if (dupData.status === "duplicate") {
         setDuplicate(dupData.data.existingDoc);
         setStep("");
-        throw new Error("Duplicate found");
+        return;
       }
 
       // Classify doc by folder and tags
@@ -71,7 +71,7 @@ export default function RoomPage() {
       const classRes = await fetch("/api/classify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ embedding: embedData.data, url, roomId: id }),
+        body: JSON.stringify({ embeddedChunks: embeddedChunks.data, url, roomId: id }),
       });
 
       const classData = await classRes.json();

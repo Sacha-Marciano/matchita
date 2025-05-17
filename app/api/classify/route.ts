@@ -16,8 +16,8 @@ import {
 
 export async function POST(req: NextRequest) {
   try {
-    const { embedding, url, roomId } = await req.json();
-    if (!url || !roomId) throw new Error("Missing URL or Room ID");
+    const { embeddedChunks, url, roomId } = await req.json();
+    if (!url || !roomId || !embeddedChunks) throw new Error("Missing URL or Room ID");
 
     await connectDb();
 
@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
       googleDocsUrl: url,
       folder: folder,
       tags: tags,
-      vector: embedding,
+      embeddedChunks: embeddedChunks,
       createdAt: new Date(),
     };
     await addDocumentToRoom(roomId, newDoc);

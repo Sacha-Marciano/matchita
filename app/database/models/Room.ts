@@ -5,7 +5,7 @@ export interface IDocument extends MongooseDocument {
   googleDocsUrl: string;
   folder: string;
   tags: string[];
-  vector: number[];
+  embeddedChunks: number[][]
   createdAt: Date;
 }
 
@@ -23,7 +23,7 @@ const DocumentSchema = new Schema<IDocument>({
   googleDocsUrl: { type: String, required: true },
   folder: { type: String, required: true },
   tags: { type: [String], default: [] },
-  vector: { type: [Number], required: true },
+  embeddedChunks : {type: [[Number]], default:[]},
   createdAt: { type: Date, default: Date.now },
 });
 

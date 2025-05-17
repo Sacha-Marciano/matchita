@@ -13,8 +13,8 @@ import { duplicateCheck } from "@/app/utils/DuplicateCheck";
 
 export async function POST(req: NextRequest) {
   try {
-    const { embedding, url, roomId } = await req.json();
-    if (!url || !roomId || !embedding)
+    const { embeddedChunks, url, roomId } = await req.json();
+    if (!url || !roomId || !embeddedChunks)
       throw new Error("Missing URL or Room ID");
 
     await connectDb();
@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
     }
 
     // 3. Check duplicates
-    const duplicate = await duplicateCheck(room, embedding, url);
+    const duplicate = await duplicateCheck(room, embeddedChunks, url);
 
    if (duplicate) {
       return NextResponse.json(
@@ -34,8 +34,7 @@ export async function POST(req: NextRequest) {
           status: "duplicate",
           data: {
             existingDoc: duplicate,
-            existingVector: duplicate.vector,
-            newVector: embedding,
+            newVector: embeddedChunks,
           },
         },
         { status: 200 }

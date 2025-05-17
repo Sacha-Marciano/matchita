@@ -34,12 +34,10 @@ export const duplicateCheck = async (
 
     let similarCount = 0;
 
-    // Determine the shorter array and iterate over it
-    const minLength = Math.min(embeddedChunks.length, existingChunks.length);
-
-    for (let i = 0; i < minLength; i++) {
-        const sim = cosineSimilarity(embeddedChunks[i], existingChunks[i]);
-        console.log(sim);
+    for (let i = 0; i < embeddedChunks.length; i++) {
+      for (let j = 0; j < existingChunks.length; j++) {
+        const sim = cosineSimilarity(embeddedChunks[i], existingChunks[j]);
+        console.log(sim)
 
         if (sim >= SIM_THRESHOLD) {
           similarCount++;
@@ -47,6 +45,7 @@ export const duplicateCheck = async (
             return doc; // found enough similar chunks
           }
         }
+      }
     }
   }
 
