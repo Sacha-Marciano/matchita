@@ -28,44 +28,7 @@ export async function POST(req: NextRequest) {
     // 3. Check duplicates
     const duplicate = await duplicateCheck(room, embedding, url);
 
-    if (Array.isArray(duplicate)) {
-      for (const dup of duplicate) {
-        const newText = await fetch(url).then((res) => res.text());
-        const duplicateText = await fetch(dup.googleDocsUrl).then((res) =>
-          res.text()
-        );
-
-        const res = await fetch(
-          "https://hook.eu2.make.com/m0oitteu2mh5ma56kdr4o51mrqwjf9pm",
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              text_1: newText.slice(0, 70000),
-              text_2: duplicateText.slice(0, 70000),
-            }),
-          }
-        );
-
-        const data = await res.json();
-
-        console.log("dupCheckResponse : ", data);
-
-        if (data === true) {
-          return NextResponse.json(
-            {
-              status: "duplicate",
-              data: {
-                existingDoc: dup,
-                existingVector: dup.vector,
-                newVector: embedding,
-              },
-            },
-            { status: 200 }
-          );
-        }
-      }
-    } else if (duplicate) {
+   if (duplicate) {
       return NextResponse.json(
         {
           status: "duplicate",

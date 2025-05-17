@@ -19,5 +19,5 @@ export const duplicateCheck = async (
     return urlDuplicate;
   }
 
-  return room.documents.filter((doc) => cosineSim(doc.vector, embedding) >= 0.89);
+  return room.documents.filter((doc) => cosineSim(doc.vector, embedding) >= 0.95)[0];
 };
