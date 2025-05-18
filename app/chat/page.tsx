@@ -9,10 +9,13 @@ export default function ChatPage() {
   const [loading, setLoading] = useState(false);
   const roomId = "6825025e707874e5671c0753"; // Hardcoded or injected as needed
 
+  const [agentNote, setAgentNote] = useState<string>("")
+
   const handleAsk = async () => {
     setLoading(true);
     setAnswer("");
     setSource(null);
+    setAgentNote("");
 
     try {
       const res = await fetch("/api/chat", {
@@ -26,6 +29,7 @@ export default function ChatPage() {
       if (data.status === "answered") {
         setAnswer(data.data.answer);
         setSource({ title: data.data.sourceTitle, url: data.data.sourceUrl });
+        setAgentNote(data.data.agentNote)
       } else {
         setAnswer(data.answer || "No answer available.");
       }
@@ -58,11 +62,14 @@ export default function ChatPage() {
       </button>
 
       {answer && (
-        <div className="mt-6">
-          <h2 className="font-semibold mb-2">Answer</h2>
-          <p className="whitespace-pre-wrap">{answer}</p>
+        <div className="mt-6 border rounded-xl p-2 space-y-2">
+          <h2 className="font-semibold mb-2">Answer:</h2>
+          <p>{agentNote}</p>
+          <div className="p-2 bg-bg-alt text-matchita-900 rounded-2xl">
+          <p className="whitespace-pre-wrap" >{`"${answer}"`}</p>
+          </div>
           {source && (
-            <p className="mt-2 text-sm text-gray-500">
+            <p className="mt-2 text-sm text-matchita-text">
               Source:{" "}
               <a href={source.url} target="_blank" rel="noopener noreferrer" className="underline">
                 {source.title}

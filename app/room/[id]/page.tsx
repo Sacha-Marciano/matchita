@@ -36,7 +36,7 @@ export default function RoomPage() {
       // Embed document
       setStep("embed");
 
-      const embedRes = await fetch("/api/embed", {
+      const embedRes = await fetch("/api/upload/embed", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url }),
@@ -52,7 +52,7 @@ export default function RoomPage() {
       // Check Duplicate
       setStep("dup-check");
 
-      const dupRes = await fetch("/api/duplicate-check", {
+      const dupRes = await fetch("/api/upload/duplicate-check", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ embeddedChunks: embeddedChunks.data, url, roomId: id }),
@@ -68,7 +68,7 @@ export default function RoomPage() {
 
       // Classify doc by folder and tags
       setStep("classify");
-      const classRes = await fetch("/api/classify", {
+      const classRes = await fetch("/api/upload/classify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ embeddedChunks: embeddedChunks.data, url, roomId: id }),
@@ -96,10 +96,10 @@ export default function RoomPage() {
     const url = docUrl.split("/edit")[0] + "/export?format=txt";
     try {
       setStep("classify");
-      const classRes = await fetch("/api/classify", {
+      const classRes = await fetch("/api/upload/classify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ embedding: standByVector, url, roomId: id }),
+        body: JSON.stringify({ embeddedChunks: standByVector, url, roomId: id }),
       });
 
       const classData = await classRes.json();

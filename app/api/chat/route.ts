@@ -6,11 +6,15 @@ import { getRoomById } from "@/app/database/services/RoomServices";
 export async function POST(req: NextRequest) {
   try {
     const { question, roomId } = await req.json();
+
     if (!question || !roomId) {
       throw new Error("Missing question or roomId");
     }
 
+    console.log("Connecting to DB...");
     await connectDb();
+
+    console.log("Fetching room...");
     const room = await getRoomById(roomId);
     if (!room || !room.documents.length) {
       return NextResponse.json(
@@ -19,66 +23,119 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Step 1: Vectorize the user question
-    const embedRes = await fetch(
-        "https://hook.eu2.make.com/2vo5qg2wbxmdtbnuwr0g621yck9beqpf",
-        {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: question }),
-      }
-    );
+    // Step 1: Extract document metadata
+    const docMetadataList = room.documents.map((doc) => ({
+      id: (doc._id as string).toString(),
+      title: doc.title,
+      googleDocsUrl: doc.googleDocsUrl,
+      tags: doc.tags,
+      // preview: doc.textPreview || "", // Add a short preview when saving the doc
+    }));
 
-    const questionEmbedding = await embedRes.json();
-
-    // Step 2: Find matching document(s)
-    const cosineSim = (a: number[], b: number[]) => {
-      const dot = a.reduce((sum, val, i) => sum + val * b[i], 0);
-      const magA = Math.sqrt(a.reduce((sum, val) => sum + val ** 2, 0));
-      const magB = Math.sqrt(b.reduce((sum, val) => sum + val ** 2, 0));
-      return dot / (magA * magB);
-    };
-
-    const matches = room.documents
-      .map((doc) => ({
-        ...doc,
-        similarity: cosineSim([0.1], questionEmbedding),
-      }))
-      .filter((doc) => doc.similarity >= 0.8)
-      .sort((a, b) => b.similarity - a.similarity);
-
-    if (!matches.length) {
-      return NextResponse.json({
-        status: "no-match",
-        answer: "No relevant documents found.",
-      });
-    }
-
-    const topDoc = matches[0];
-    const docText = await fetch(topDoc.googleDocsUrl).then((res) => res.text());
-
-    // Step 3: Ask the agent via Make.com
-    const agentRes = await fetch(
-      "https://hook.eu2.make.com/i14r3xclbuzrnsa0zebfsw514c6ljcy8",
+    console.log("Calling AI agent to rank documents...");
+    const selectorRes = await fetch(
+      "https://hook.eu2.make.com/p9obz9grcjdi7h9tvi1jnnuku7pbv2oa",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           question,
-          text: docText.slice(0, 70000), // truncate if needed
+          documents: docMetadataList,
         }),
       }
     );
 
-    const agentAnswer = await agentRes.json();
+    const rawSelectorRes = await selectorRes.text();
+    console.log("Raw selector response:", rawSelectorRes);
 
+    const parsedRes = JSON.parse(rawSelectorRes);
+    const rankedDocIds: string[] = parsedRes.rankedDocIds;
+
+    // Step 2: Try answering the question from each top-ranked document
+    // for (const docId of rankedDocIds) {
+    // const doc = room.documents.find((d) => (d._id as string).toString() === docId);
+    // if (!doc) continue;
+
+    // console.log("Fetching text for doc:", doc.title);
+    // const fullText = await fetch(doc.googleDocsUrl).then((res) => res.text());
+
+    // console.log("Calling AI agent to extract answer...");
+    // const answerRes = await fetch(
+    //   "https://hook.eu2.make.com/your-qa-hook", // Replace with your actual Make webhook
+    //   {
+    //     method: "POST",
+    //     headers: { "Content-Type": "application/json" },
+    //     body: JSON.stringify({
+    //       question,
+    //       text: fullText.slice(0, 70000), // Truncate if needed
+    //     }),
+    //   }
+    // );
+
+    // const answerData = await answerRes.json();
+
+    // if (answerData?.answer && answerData.answer.trim()) {
+    //   console.log("Found valid answer in doc:", doc.title);
+    //   return NextResponse.json({
+    //     status: "answered",
+    //     data: {
+    //       answer: answerData.answer,
+    //       sourceTitle: doc.title,
+    //       sourceUrl: doc.googleDocsUrl,
+    //     },
+    //   });
+    // }
+
+    // console.log("No answer found in doc:", doc.title);
+    // }
+
+    console.log(rankedDocIds[0]);
+    const doc = room.documents.find(
+      (d) => (d._id as string).toString() === rankedDocIds[0]
+    );
+    if (!doc) return;
+
+    console.log("Fetching text for doc:", doc.title);
+    const fullText = await fetch(doc.googleDocsUrl).then((res) => res.text());
+
+    console.log("Calling AI agent to extract answer...");
+    const answerRes = await fetch(
+      "https://hook.eu2.make.com/d1p1dt2hlyexss31oirpf8l6aujkp63c", // Replace with your actual Make webhook
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          question,
+          text: fullText.slice(0, 70000), // Truncate if needed
+        }),
+      }
+    );
+
+    const rawAnswerRes = await answerRes.text();
+    console.log("Answer response:", rawAnswerRes);
+
+    const parsedAnswer = JSON.parse(rawAnswerRes);
+    const answerData: { answer: string; note: string } = parsedAnswer;
+
+    if (answerData?.answer && answerData.answer.trim()) {
+      console.log("Found valid answer in doc:", doc.title);
+      return NextResponse.json({
+        status: "answered",
+        data: {
+          answer: answerData.answer,
+          sourceTitle: doc.title,
+          sourceUrl: doc.googleDocsUrl,
+          agentNote: answerData.note,
+        },
+      });
+    }
+
+    console.log("No answer found in doc:", doc.title);
+
+    // If no answer found in any of the top docs
     return NextResponse.json({
-      status: "answered",
-      data: {
-        answer: agentAnswer,
-        sourceTitle: topDoc.title,
-        sourceUrl: topDoc.googleDocsUrl,
-      },
+      status: "no-match",
+      answer: "Sorry, I couldn't find an answer in the documents.",
     });
   } catch (err) {
     console.error("[CHAT ERROR]", err);
