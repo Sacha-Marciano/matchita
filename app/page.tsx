@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import RoomModal from "./components/Rooms/RoomModal";
 import RoomCard from "./components/Rooms/RoomCard";
+import Loading from "./components/Loading";
 
 interface Room {
   _id: string;
@@ -57,6 +58,13 @@ export default function Home() {
 
     fetchRooms();
   }, []);
+
+   if (rooms.length <= 0)
+      return (
+        <div className="h-[85vh] w-full flex items-center justify-center">
+          <Loading message="Loading Rooms..." />
+        </div>
+      );
 
   return (
     <main className="w-full min-h-screen p-4 space-y-4">

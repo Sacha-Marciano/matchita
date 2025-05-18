@@ -7,6 +7,7 @@ import { IRoom, IDocument } from "@/app/database/models/Room";
 import Toggle from "@/app/components/ui/Toggle";
 import FolderSection from "@/app/components/Folders/FolderSection";
 import DocSection from "@/app/components/DocCmpnts/DocSection";
+import Loading from "@/app/components/Loading";
 
 export default function RoomPage() {
   const { id } = useParams();
@@ -55,7 +56,11 @@ export default function RoomPage() {
       const dupRes = await fetch("/api/upload/duplicate-check", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ embeddedChunks: embeddedChunks.data, url, roomId: id }),
+        body: JSON.stringify({
+          embeddedChunks: embeddedChunks.data,
+          url,
+          roomId: id,
+        }),
       });
 
       const dupData = await dupRes.json();
@@ -71,7 +76,11 @@ export default function RoomPage() {
       const classRes = await fetch("/api/upload/classify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ embeddedChunks: embeddedChunks.data, url, roomId: id }),
+        body: JSON.stringify({
+          embeddedChunks: embeddedChunks.data,
+          url,
+          roomId: id,
+        }),
       });
 
       const classData = await classRes.json();
@@ -99,7 +108,11 @@ export default function RoomPage() {
       const classRes = await fetch("/api/upload/classify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ embeddedChunks: standByVector, url, roomId: id }),
+        body: JSON.stringify({
+          embeddedChunks: standByVector,
+          url,
+          roomId: id,
+        }),
       });
 
       const classData = await classRes.json();
@@ -159,7 +172,13 @@ export default function RoomPage() {
     fetchRoom();
   }, [id]);
 
-  if (!room) return <div className="p-4">Loading room...</div>;
+  if (!room)
+    return (
+      <div className="h-[85vh] w-full flex items-center justify-center">
+        {" "}
+        <Loading message="Loading Folders..." />
+      </div>
+    );
 
   return (
     <div className="p-4">
