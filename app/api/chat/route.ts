@@ -89,7 +89,6 @@ export async function POST(req: NextRequest) {
     // console.log("No answer found in doc:", doc.title);
     // }
 
-    console.log(rankedDocIds[0]);
     for (const docId of rankedDocIds) {
       const doc = room.documents.find(
       (d) => (d._id as string).toString() === docId
@@ -101,7 +100,7 @@ export async function POST(req: NextRequest) {
 
       console.log("Calling AI agent to extract answer...");
       const answerRes = await fetch(
-      "https://hook.eu2.make.com/d1p1dt2hlyexss31oirpf8l6aujkp63c", // Replace with your actual Make webhook
+      "https://hook.eu2.make.com/d1p1dt2hlyexss31oirpf8l6aujkp63c", 
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },

@@ -1,4 +1,4 @@
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, CrossIcon, Expand } from "lucide-react";
 import React, { useState } from "react";
 import { IDocument } from "@/app/database/models/Room";
 import Tags from "../../ui/Tags";
@@ -14,7 +14,7 @@ const FolderCard = ({ folder, handleDeleteDoc }: FolderCardProps) => {
   return (
     <div
       key={folder.folderName}
-      className="border p-2 rounded flex flex-col items-center gap-2"
+      className="border p-2 rounded flex flex-col items-center gap-2 "
     >
       <p>
         <strong> {folder.folderName}</strong>
@@ -26,19 +26,17 @@ const FolderCard = ({ folder, handleDeleteDoc }: FolderCardProps) => {
         </p>
 
         <button onClick={() => setIsFolderOpen(!isFolderOpen)}>
-          {isFolderOpen ? (
+
             <div className="flex items-center gap-1">
-              <p>Close Folder</p> <ChevronUp />
+              <p>Open Folder</p> <Expand size={16}/>
             </div>
-          ) : (
-            <div className="flex items-center gap-1">
-              <p>Open Folder</p> <ChevronDown />
-            </div>
-          )}
+          
         </button>
       </div>
       {isFolderOpen && (
-        <div className="flex flex-col w-full p-2 gap-2">
+        <div className="w-full p-6  absolute bg-bg-alt rounded-xl top-0 bottom-0 left-0 right-0 flex flex-col items-center ">
+          <h2 className="text-2xl font-bold"> {folder.folderName} </h2>
+        <div className="w-full p-2 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3  overflow-y-auto">
           {folder.documents.map((doc, index) => (
             <div
               key={index}
@@ -72,6 +70,9 @@ const FolderCard = ({ folder, handleDeleteDoc }: FolderCardProps) => {
               </div>
             </div>
           ))}
+          {/* Close folder button */}
+          <CrossIcon className="rotate-45 absolute top-4 right-4 cursor-pointer" onClick={() => setIsFolderOpen(false)}/>
+        </div>
         </div>
       )}
     </div>

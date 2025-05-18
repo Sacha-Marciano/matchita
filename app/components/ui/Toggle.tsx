@@ -16,7 +16,7 @@ const Toggle = ({ options, onToggle }: ToggleProps) => {
               selected === option
                 ? "bg-matchita-400 text-white"
                 : "bg-transparent text-matchita-900"
-            } w-full rounded-full text-center p-2`}
+            } w-full rounded-full text-center p-2 cursor-pointer`}
             onClick={() => {
               setSelected(option);
               onToggle(option);
