@@ -71,7 +71,7 @@ export default function ChatPage() {
           {source && (
             <p className="mt-2 text-sm text-matchita-text">
               Source:{" "}
-              <a href={source.url} target="_blank" rel="noopener noreferrer" className="underline">
+              <a href={source.url.split("/export")[0] + "/edit?usp=drive_link"} target="_blank" rel="noopener noreferrer" className="underline">
                 {source.title}
               </a>
             </p>

@@ -52,7 +52,10 @@ const FolderCard = ({ folder, handleDeleteDoc }: FolderCardProps) => {
               </div>
               <div className="flex gap-2 p-2 ">
                 <a
-                  href={doc.googleDocsUrl}
+                  href={
+                    doc.googleDocsUrl.split("/export")[0] +
+                    "/edit?usp=drive_link"
+                  }
                   target="_blank"
                   className="py-2 px-4 bg-primary border border-secondary hover:bg-hover text-matchita-text hover:text-matchita-text-alt shadow-2xl rounded-xl text-nowrap! text-ellipsis! text-sm"
                 >

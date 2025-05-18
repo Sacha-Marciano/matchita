@@ -102,7 +102,7 @@ const DocModal: FC<RoomModalProps> = ({
                 <Tags tags={duplicate.tags} />
               </div>
               <button className="mt-2">
-                <a href={duplicate.googleDocsUrl}>Open similar document</a>
+                <a href={duplicate.googleDocsUrl.split("/export")[0] + "/edit?usp=drive_link"}>Open similar document</a>
               </button>
             </div>
 

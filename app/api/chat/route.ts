@@ -90,47 +90,50 @@ export async function POST(req: NextRequest) {
     // }
 
     console.log(rankedDocIds[0]);
-    const doc = room.documents.find(
-      (d) => (d._id as string).toString() === rankedDocIds[0]
-    );
-    if (!doc) return;
+    for (const docId of rankedDocIds) {
+      const doc = room.documents.find(
+      (d) => (d._id as string).toString() === docId
+      );
+      if (!doc) continue;
 
-    console.log("Fetching text for doc:", doc.title);
-    const fullText = await fetch(doc.googleDocsUrl).then((res) => res.text());
+      console.log("Fetching text for doc:", doc.title);
+      const fullText = await fetch(doc.googleDocsUrl).then((res) => res.text());
 
-    console.log("Calling AI agent to extract answer...");
-    const answerRes = await fetch(
+      console.log("Calling AI agent to extract answer...");
+      const answerRes = await fetch(
       "https://hook.eu2.make.com/d1p1dt2hlyexss31oirpf8l6aujkp63c", // Replace with your actual Make webhook
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          question,
-          text: fullText.slice(0, 70000), // Truncate if needed
+        question,
+        text: fullText.slice(0, 70000), // Truncate if needed
         }),
       }
-    );
+      );
 
-    const rawAnswerRes = await answerRes.text();
-    console.log("Answer response:", rawAnswerRes);
+      const rawAnswerRes = await answerRes.text();
+      console.log("Answer response:", rawAnswerRes);
 
-    const parsedAnswer = JSON.parse(rawAnswerRes);
-    const answerData: { answer: string; note: string } = parsedAnswer;
+      const parsedAnswer = JSON.parse(rawAnswerRes);
+      const answerData: { answer: string; note: string } = parsedAnswer;
 
-    if (answerData?.answer && answerData.answer.trim()) {
+      if (answerData?.answer && answerData.answer.trim()) {
       console.log("Found valid answer in doc:", doc.title);
       return NextResponse.json({
         status: "answered",
         data: {
-          answer: answerData.answer,
-          sourceTitle: doc.title,
-          sourceUrl: doc.googleDocsUrl,
-          agentNote: answerData.note,
+        answer: answerData.answer,
+        sourceTitle: doc.title,
+        sourceUrl: doc.googleDocsUrl,
+        agentNote: answerData.note,
         },
       });
+      }
+
+      console.log("No answer found in doc:", doc.title);
     }
 
-    console.log("No answer found in doc:", doc.title);
 
     // If no answer found in any of the top docs
     return NextResponse.json({

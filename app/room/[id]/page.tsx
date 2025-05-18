@@ -8,6 +8,7 @@ import Toggle from "@/app/components/ui/Toggle";
 import FolderSection from "@/app/components/Folders/FolderSection";
 import DocSection from "@/app/components/DocCmpnts/DocSection";
 import Loading from "@/app/components/Loading";
+import ChatWindow from "@/app/components/ChatWindow";
 
 export default function RoomPage() {
   const { id } = useParams();
@@ -23,6 +24,17 @@ export default function RoomPage() {
   const [step, setStep] = useState<"" | "embed" | "dup-check" | "classify">("");
 
   const [standByVector, setStandByVector] = useState<number[]>([]);
+
+    const [messages, setMessages] = useState<
+      {
+        role: "user" | "agent";
+        content: {
+          text: string;
+          source?: { title: string; url: string };
+          agentNote?: string;
+        };
+      }[]
+    >([]);
 
   useEffect(() => {
     console.log(step);
@@ -175,7 +187,6 @@ export default function RoomPage() {
   if (!room)
     return (
       <div className="h-[85vh] w-full flex items-center justify-center">
-        {" "}
         <Loading message="Loading Folders..." />
       </div>
     );
@@ -196,7 +207,7 @@ export default function RoomPage() {
 
       {/* Toggle */}
       <Toggle
-        options={["Folders", "Documents"]}
+        options={["Folders", "Documents", "Chat"]}
         onToggle={(value) => {
           setDashView(value);
         }}
@@ -214,6 +225,9 @@ export default function RoomPage() {
           handleDeleteDoc={handleDeleteDoc}
         />
       )}
+
+      {/* Chat Section */}
+      {dashView === "Chat" && <ChatWindow roomId={room._id as string} messages={messages} setMessages={setMessages} />}
 
       {/* Add document modal */}
       <DocModal

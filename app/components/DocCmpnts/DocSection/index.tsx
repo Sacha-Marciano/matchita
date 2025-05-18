@@ -9,7 +9,7 @@ type DocSectionProps = {
 
 const DocSection = ({ docToDisplay, handleDeleteDoc }: DocSectionProps) => {
   return (
-    <div className="text-matchita-900 bg-bg-alt p-2 mt-4 rounded-2xl min-h-[70vh]">
+    <div className="text-matchita-900 bg-bg-alt p-2 mt-4 rounded-2xl h-[65vh] overflow-y-scroll">
       <h2 className="text-xl font-semibold mb-4 text-center">Documents</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
         {docToDisplay.map((doc) => (
