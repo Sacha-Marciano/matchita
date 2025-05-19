@@ -1,7 +1,9 @@
 import React, { useState, useRef, useEffect } from "react";
 import { SendHorizonal } from "lucide-react";
+import highlightSelectedText from "@/app/utils/HilightSelected";
+import HtmlModal from "../HtmlModal";
 
-interface IMessage    {
+interface IMessage {
   role: "user" | "agent";
   content: {
     text: string;
@@ -13,12 +15,19 @@ interface IMessage    {
 type ChatWindowProps = {
   roomId: string;
   messages: IMessage[];
-  setMessages: React.Dispatch<React.SetStateAction<IMessage[]>>;};
+  setMessages: React.Dispatch<React.SetStateAction<IMessage[]>>;
+};
 
-const ChatWindow: React.FC<ChatWindowProps> = ({ roomId, messages, setMessages }) => {
+const ChatWindow: React.FC<ChatWindowProps> = ({
+  roomId,
+  messages,
+  setMessages,
+}) => {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const [htmlToShow, setHtmlToShow] = useState<string>("");
+  const [showModal, setShowModal] = useState(false);
 
   const handleSend = async () => {
     if (!input.trim()) return;
@@ -54,9 +63,15 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ roomId, messages, setMessages }
     } catch (err) {
       setMessages((prev) => [
         ...prev,
-        { role: "agent", content: { text: "Freedom is not worth having if it does not include the freedom to make mistakes.", agentNote:"No matching data was found, please review your query" } },
+        {
+          role: "agent",
+          content: {
+            text: "Freedom is not worth having if it does not include the freedom to make mistakes.",
+            agentNote: "No matching data was found, please review your query",
+          },
+        },
       ]);
-      console.log("no document found:", err)
+      console.log("no document found:", err);
     } finally {
       setLoading(false);
     }
@@ -67,6 +82,13 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ roomId, messages, setMessages }
       e.preventDefault();
       handleSend();
     }
+  };
+
+  const handleSourceClick = async (docUrl: string, selectedText: string) => {
+    console.log(selectedText)
+    const html = await highlightSelectedText(docUrl, selectedText);
+    setHtmlToShow(html);
+    setShowModal(true);
   };
 
   useEffect(() => {
@@ -94,17 +116,28 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ roomId, messages, setMessages }
                 <p className="whitespace-pre-wrap italic text-center">{`"[...] ${msg.content.text} [...]"`}</p>
               </div>
               {msg.content.source && (
-                <p className="mt-2 text-sm text-matchita-text-alt">
-                  Source:{" "}
-                  <a
+                <div className="mt-2 text-sm text-matchita-text-alt">
+                  {/* <a
                     href={msg.content.source.url.split("/export")[0] + "/edit?usp=drive_link"}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="underline"
                   >
                     {msg.content.source.title}
-                  </a>
-                </p>
+                  </a> */}
+                  <div
+                    className="cursor-pointer underline"
+                    onClick={() =>
+                      handleSourceClick(
+                        msg.content.source?.url.split("/export")[0] +
+                          "/export?format=html",
+                        msg.content.text
+                      )
+                    }
+                  >
+                    {msg.content.source.title}
+                  </div>
+                </div>
               )}
             </div>
           )
@@ -132,6 +165,9 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ roomId, messages, setMessages }
           <SendHorizonal size={20} />
         </button>
       </div>
+      {showModal && (
+        <HtmlModal html={htmlToShow} onClose={() => setShowModal(false)} />
+      )}
     </div>
   );
 };

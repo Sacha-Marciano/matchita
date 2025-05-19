@@ -40,82 +40,78 @@ export default function RoomPage() {
     console.log(step);
   }, [step]);
 
-  // const handleAddDoc = async (docUrl: string) => {
-  //   const url = docUrl.split("/edit")[0] + "/export?format=txt";
-
-  //   setDuplicate(undefined);
-
-  //   try {
-  //     // Embed document
-  //     setStep("embed");
-
-  //     const embedRes = await fetch("/api/upload/embed", {
-  //       method: "POST",
-  //       headers: { "Content-Type": "application/json" },
-  //       body: JSON.stringify({ url }),
-  //     });
-
-  //     const embeddedChunks = await embedRes.json();
-  //     setStandByVector(embeddedChunks.data);
-
-  //     if (embeddedChunks.status !== "vectorized") {
-  //       throw new Error("Document embedding failed");
-  //     }
-
-  //     // Check Duplicate
-  //     setStep("dup-check");
-
-  //     const dupRes = await fetch("/api/upload/duplicate-check", {
-  //       method: "POST",
-  //       headers: { "Content-Type": "application/json" },
-  //       body: JSON.stringify({
-  //         embeddedChunks: embeddedChunks.data,
-  //         url,
-  //         roomId: id,
-  //       }),
-  //     });
-
-  //     const dupData = await dupRes.json();
-
-  //     if (dupData.status === "duplicate") {
-  //       setDuplicate(dupData.data.existingDoc);
-  //       setStep("");
-  //       return;
-  //     }
-
-  //     // Classify doc by folder and tags
-  //     setStep("classify");
-  //     const classRes = await fetch("/api/upload/classify", {
-  //       method: "POST",
-  //       headers: { "Content-Type": "application/json" },
-  //       body: JSON.stringify({
-  //         embeddedChunks: embeddedChunks.data,
-  //         url,
-  //         roomId: id,
-  //       }),
-  //     });
-
-  //     const classData = await classRes.json();
-
-  //     if (classData.status !== "saved") {
-  //       throw new Error("Error classifying document");
-  //     }
-
-  //     // If all promise statuses are OK, update frontend
-  //     setDocToDisplay([...docToDisplay, classData.data.newDoc]);
-  //     setFolders(classData.data.newFolders);
-  //     setIsDocModalOpen(false);
-  //     setDuplicate(undefined);
-  //     setStep("");
-  //   } catch (err) {
-  //     console.error("Error adding document:", err);
-  //   }
-  // };
-
   const handleAddDoc = async (docUrl: string) => {
-    const textRAW = await fetch(docUrl).then((res) => res.text());
-    console.log(textRAW)
-  }
+    const url = docUrl.split("/edit")[0] + "/export?format=txt";
+
+    setDuplicate(undefined);
+
+    try {
+      // Embed document
+      setStep("embed");
+
+      const embedRes = await fetch("/api/upload/embed", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url }),
+      });
+
+      const embeddedChunks = await embedRes.json();
+      setStandByVector(embeddedChunks.data);
+
+      if (embeddedChunks.status !== "vectorized") {
+        throw new Error("Document embedding failed");
+      }
+
+      // Check Duplicate
+      setStep("dup-check");
+
+      const dupRes = await fetch("/api/upload/duplicate-check", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          embeddedChunks: embeddedChunks.data,
+          url,
+          roomId: id,
+        }),
+      });
+
+      const dupData = await dupRes.json();
+
+      if (dupData.status === "duplicate") {
+        setDuplicate(dupData.data.existingDoc);
+        setStep("");
+        return;
+      }
+
+      // Classify doc by folder and tags
+      setStep("classify");
+      const classRes = await fetch("/api/upload/classify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          embeddedChunks: embeddedChunks.data,
+          url,
+          roomId: id,
+        }),
+      });
+
+      const classData = await classRes.json();
+
+      if (classData.status !== "saved") {
+        throw new Error("Error classifying document");
+      }
+
+      // If all promise statuses are OK, update frontend
+      setDocToDisplay([...docToDisplay, classData.data.newDoc]);
+      setFolders(classData.data.newFolders);
+      setIsDocModalOpen(false);
+      setDuplicate(undefined);
+      setStep("");
+    } catch (err) {
+      console.error("Error adding document:", err);
+    }
+  };
+
 
   const handleSaveAnyway = async (docUrl: string) => {
     setDuplicate(undefined);

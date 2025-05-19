@@ -1,11 +1,21 @@
 @import "tailwindcss";
 
+@utility no-scrollbar {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
 body {
   @apply bg-bg text-matchita-text;
 }
 
 button {
-  @apply font-primary p-2 bg-matchita-600 border border-secondary hover:bg-hover text-matchita-text hover:text-matchita-text-alt shadow-2xl rounded-xl;
+  @apply font-primary p-2 bg-matchita-600 border border-secondary hover:bg-hover text-matchita-text hover:text-matchita-text-alt shadow-2xl rounded-xl  cursor-pointer;
   @apply disabled:bg-matchita-200 disabled:text-gray-400 disabled:cursor-not-allowed;
 }
 
