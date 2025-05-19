@@ -1,7 +1,6 @@
 import {  CrossIcon, Expand } from "lucide-react";
 import React, { useState } from "react";
 import { IDocument } from "@/app/database/models/Room";
-import Tags from "../../ui/Tags";
 import DocCard from "../../DocCmpnts/DocCard";
 
 type FolderCardProps = {
