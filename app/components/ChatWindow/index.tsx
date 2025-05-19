@@ -80,14 +80,14 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ roomId, messages, setMessages }
           msg.role === "user" ? (
             <div
               key={idx}
-              className={`p-3 rounded-xl max-w-[80%] whitespace-pre-line ${"bg-primary text-white self-end ml-auto"}`}
+              className={`p-3 rounded-xl max-w-[80%] border whitespace-pre-line ${"bg-primary text-white self-end ml-auto"}`}
             >
               {msg.content.text}
             </div>
           ) : (
             <div
               key={idx}
-              className={`p-3 rounded-xl max-w-[80%] whitespace-pre-line border ${"bg-matchita-300 text-matchita-900 self-start mr-auto"}`}
+              className={`p-3 rounded-xl max-w-[80%] whitespace-pre-line border space-y-2 ${"bg-matchita-300 text-matchita-900 self-start mr-auto"}`}
             >
               <p> {msg.content.agentNote}</p>
               <div className="p-2 bg-bg-alt text-matchita-900 rounded-2xl">
