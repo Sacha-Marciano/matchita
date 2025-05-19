@@ -36,7 +36,7 @@ const FolderCard = ({ folder, handleDeleteDoc }: FolderCardProps) => {
       {isFolderOpen && (
         <div className="w-full p-6  absolute bg-bg-alt rounded-xl top-0 bottom-0 left-0 right-0 flex flex-col items-center ">
           <h2 className="text-2xl font-bold"> {folder.folderName} </h2>
-        <div className="w-full p-2 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3  overflow-y-auto">
+        <div className="w-full p-2 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2  overflow-y-auto">
           {folder.documents.map((doc) => (
             <DocCard key={doc.title} doc={doc} handleDeleteDoc={handleDeleteDoc} />
           ))}
