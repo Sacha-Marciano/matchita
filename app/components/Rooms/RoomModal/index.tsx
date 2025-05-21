@@ -18,7 +18,7 @@ const RoomModal: FC<RoomModalProps> = ({ isOpen, onClose, handleSubmit }) => {
     >
       {/* Modal */}
       <div
-        className="bg-white p-4 rounded-xl min-w-[50%] min-h-[50%] flex flex-col items-start justify-between"
+        className="bg-white p-4 rounded-xl absolute top-10 bottom-10 left-6 right-6 flex flex-col items-stretch justify-between text-matchita-900"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex flex-col gap-2">
